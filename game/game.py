@@ -2,14 +2,19 @@ import pygame
 
 from car import Car
 
-# Maine Game loop and state managment
+# Main Game loop and state managment
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 
 # Load Game Assets once
-car = Car(350, 250, 25, 10)
+# Load Cars
+carColor = "red"  # Red color for the car TODO: Make this a parameter for the Car class
+cars = pygame.sprite.Group()
+car = Car(carColor, 600, 360)
+#Add the car to the sprite group
+cars.add(car)
 
 while running:
     # Process player inputs.
@@ -17,12 +22,12 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # fill the screen with a color to wipe away anything from last frame
+    # update screen
     screen.fill("dark grey")
+    cars.draw(screen)
 
     # RENDER YOUR GAME HERE
     #draw rects
-    pygame.draw.rect(screen, car.carColorRed, car.rect)
 
     # flip() the display to put your work on screen
     pygame.display.flip()
