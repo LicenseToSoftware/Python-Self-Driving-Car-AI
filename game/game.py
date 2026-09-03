@@ -1,6 +1,8 @@
 import pygame
 
-from car import Car
+from game.car import Car
+from input.human_controller import player_controls
+
 
 # Main Game loop and state managment
 pygame.init()
@@ -10,7 +12,7 @@ running = True
 
 # Load Game Assets once
 # Load Cars
-carColor = "red"  # Red color for the car TODO: Make this a parameter for the Car class
+carColor = "red"
 cars = pygame.sprite.Group()
 car = Car(carColor, 600, 360)
 #Add the car to the sprite group
@@ -22,11 +24,19 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    keys = pygame.key.get_pressed()
+    player_controls(keys, car)
+    car.update()  # Update the car's position after moving
+
+
+
     # update screen
     screen.fill("dark grey")
     cars.draw(screen)
 
     # RENDER YOUR GAME HERE
+
+
     #draw rects
 
     # flip() the display to put your work on screen
