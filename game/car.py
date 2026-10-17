@@ -8,7 +8,7 @@ class Car(pygame.sprite.Sprite):
 
     def __init__(self, color, x, y):
             """
-            Initialize a car with a color and starting position.
+            Initialize the car's appearance, position, and movement.
 
             Args:
                 color: The color used to display the car.
@@ -23,8 +23,6 @@ class Car(pygame.sprite.Sprite):
             self.rect = self.image.get_rect()
             self.rect.center = (x, y)
 
-            self.speed = self.direction = 0
-
             # Car's velocity and drag properties
             self.position = pygame.Vector2(self.rect.center)
             self.velocity = pygame.Vector2(0, 0)
@@ -32,6 +30,7 @@ class Car(pygame.sprite.Sprite):
             self.acceleration_direction = pygame.Vector2(0, 0)  # Initialize acceleration_direction as a 2D vector
 
     def move(self, dx, dy):
+        """Set the direction in which the car should accelerate."""
         self.acceleration_direction.update(dx, dy)
         
     def update(self):
