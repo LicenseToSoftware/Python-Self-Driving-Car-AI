@@ -19,6 +19,8 @@ car = Car(carColor, 600, 360)
 cars.add(car)
 
 while running:
+    dt = clock.tick(60) / 1000.0  # limits FPS to 60 and converts to seconds
+
     # Process player inputs.
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -26,7 +28,7 @@ while running:
 
     keys = pygame.key.get_pressed()
     player_controls(keys, car)
-    car.update()  # Update the car's position after moving
+    car.update(screen.get_rect(), dt)  # Update the car's position after moving
 
 
 
@@ -42,6 +44,5 @@ while running:
     # flip() the display to put your work on screen
     pygame.display.flip()
 
-    clock.tick(60)  # limits FPS to 60
 
 pygame.quit()

@@ -21,3 +21,5 @@ def player_controls(keys, car):
         dy += 1
 
     car.move(dx, dy)
+    #Fixme code comment return
+    return dx, dy
