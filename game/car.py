@@ -18,8 +18,13 @@ class Car(pygame.sprite.Sprite):
             """
             super().__init__()
             # Set the car's color, size, and position
-            self.image = pygame.Surface((25, 10))
-            self.image.fill(color)
+
+            # Create and preserve the car's original unrotated image.
+            self.original_image = pygame.Surface((25, 10))
+            self.original_image.fill(color)
+
+            # This image can later be rotated for display.
+            self.image = self.original_image.copy()
 
             self.rect = self.image.get_rect()
             self.rect.center = (x, y)
@@ -30,6 +35,9 @@ class Car(pygame.sprite.Sprite):
 
             self.acceleration_direction = pygame.Vector2(0, 0)  # Initialize acceleration_direction as a 2D vector
 
+            # The car's angle in degrees, where 0 is facing right.
+            self.angle = 0
+            
     def move(self, dx, dy):
         """
         Set the direction in which the car should accelerate.
