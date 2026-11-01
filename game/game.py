@@ -1,7 +1,7 @@
 import pygame
 
 from game.car import Car
-from input.human_controller import player_controls
+from input.human_controller import Player_Controls as player_controls
 from input.debug_controls import debug_controls
 from debug.debug_overlay import draw_debug_overlay as debug_overlay
 
@@ -16,6 +16,7 @@ debug_font = pygame.font.Font(None, 22)
 # Display Settings
 screen = pygame.display.set_mode((1280, 720))
 screen_bounds = screen.get_rect()
+screen_bg = "Black"
 
 #Timing
 FPS_LIMIT = 60
@@ -26,12 +27,15 @@ clock = pygame.time.Clock()
 running = True
 
 # Create Game Objects
-carColor = "red"
-car = Car(carColor, 600, 360)
+car_image_path = "assets/cars/RedStrip.png"  # Path to the car image
+car = Car(car_image_path, 600, 360)
 
 #Add the car to the sprite group
 cars = pygame.sprite.Group()
 cars.add(car)
+
+# Create Player Controls
+player1 = player_controls(car)
 
 while running:
     # Calculate the time since the previous frame.
@@ -48,12 +52,13 @@ while running:
 
     # Process player inputs.
     keys = pygame.key.get_pressed()
-    player_controls(keys, car)
+    player1.player_movement(keys)
+    player1.player_steering(keys, dt)
     cars.update(screen_bounds, dt)  # Update the car's position after moving
 
 
     # update frame
-    screen.fill("dark grey")
+    screen.fill(screen_bg)
     cars.draw(screen)
 
     if debug_overlay_enabled:

@@ -1,18 +1,28 @@
 import pygame
 
 class Car(pygame.sprite.Sprite):
-    """Represents a car and its position in the game world."""
+    """Represents a car and its position in the game world.
+    Attributes:
+        original_image: The car image before rotation.
+        image: The current image shown on screen.
+        rect: The rectangle used to position the image.
+        position: The car's precise position.
+        velocity: The car's current velocity.
+        acceleration_direction: The direction the car is accelerating.
+        angle: The car's heading in degrees; 0 faces right.
+        """
     MAX_SPEED = 180
     ACCELERATION = 108
     DRAG = 0.95
     STOP_SPEED = 1
+    TURN_SPEED = 180  # Degrees per second
 
-    def __init__(self, color, x, y):
+    def __init__(self, car_image_path, x, y):
             """
             Initialize the car's appearance, position, and movement.
 
             Args:
-                color: The color used to display the car.
+                car_image_path (str): The file path to the car image.
                 x (int): The starting x-coordinate of the car's center.
                 y (int): The starting y-coordinate of the car's center.
             """
@@ -20,8 +30,9 @@ class Car(pygame.sprite.Sprite):
             # Set the car's color, size, and position
 
             # Create and preserve the car's original unrotated image.
-            self.original_image = pygame.Surface((25, 10))
-            self.original_image.fill(color)
+            self.original_image = pygame.image.load(car_image_path)
+            self.image = self.original_image
+            self.rect = self.image.get_rect(center=(x, y))
 
             # This image can later be rotated for display.
             self.image = self.original_image.copy()
@@ -48,7 +59,7 @@ class Car(pygame.sprite.Sprite):
         self.acceleration_direction.update(dx, dy)
         
     def update(self, bounds, dt):
-        """"
+        """
         Update the car's position based on its velocity and acceleration direction.
         Args:
             bounds (pygame.Rect): The rectangular area within which the car should stay.
@@ -75,12 +86,13 @@ class Car(pygame.sprite.Sprite):
         # Multiplying it by dt gives the distance traveled this frame.
         self.position += self.velocity * dt
 
-        # Synchronize the sprite rectangle with the precise position.
-        self.rect.center = (
-             round(self.position.x), 
-             round(self.position.y)
-             )
+        # Rotate from the original image so each frame doesn't degrade the image.
+        self.image = pygame.transform.rotate(self.original_image, -self.angle)
 
+        # Keep the rotated image centered on the car's position.
+        self.rect = self.image.get_rect(
+            center=(round(self.position.x), round(self.position.y))
+)
         # Clamp the car's position within the specified bounds
         self.keep_inside(bounds)
 
