@@ -1,4 +1,5 @@
 import pygame
+import math
 
 class Car(pygame.sprite.Sprite):
     """Represents a car and its position in the game world.
@@ -15,7 +16,7 @@ class Car(pygame.sprite.Sprite):
     ACCELERATION = 108
     DRAG = 0.95
     STOP_SPEED = 1
-    TURN_SPEED = 180  # Degrees per second
+    TURN_SPEED = 90  # Degrees per second
 
     def __init__(self, car_image_path, x, y):
             """
@@ -49,13 +50,17 @@ class Car(pygame.sprite.Sprite):
             # The car's angle in degrees, where 0 is facing right.
             self.angle = 0
             
-    def move(self, dx, dy):
+    def set_movement_input(self, forward):
         """
         Set the direction in which the car should accelerate.
         Args:
             dx (float): The x-component of the acceleration direction.
             dy (float): The y-component of the acceleration direction.
+            forward (int): The forward/backward input from the player.
         """
+        angle = math.radians(self.angle) # Must use local variable to avoid modifying the class attribute directly
+        dx = math.cos(angle) * forward
+        dy = math.sin(angle) * forward
         self.acceleration_direction.update(dx, dy)
         
     def update(self, bounds, dt):
@@ -64,41 +69,9 @@ class Car(pygame.sprite.Sprite):
         Args:
             bounds (pygame.Rect): The rectangular area within which the car should stay.
         """
-
-        # Update the car's position based on its velocity and acceleration direction
-        if self.acceleration_direction.length_squared() > 0:
-            direction = self.acceleration_direction.normalize()
-
-            # Apply acceleration in the direction of movement
-            self.velocity += direction * self.ACCELERATION * dt
-        else:
-            self.velocity *= self.DRAG ** (dt * 60) 
-            
-        # Stop once the remaining velocity becomes negligible.
-        if self.velocity.length() < self.STOP_SPEED:
-            self.velocity.update(0, 0)
-        
-        # Limit the car's speed to the maximum speed in both directions
-        if self.velocity.length() > self.MAX_SPEED:
-                self.velocity.scale_to_length(self.MAX_SPEED)
-
-        # Velocity is measured in pixels per second.
-        # Multiplying it by dt gives the distance traveled this frame.
-        self.position += self.velocity * dt
-
-        # Rotate from the original image so each frame doesn't degrade the image.
-        self.image = pygame.transform.rotate(self.original_image, -self.angle)
-
-        # Keep the rotated image centered on the car's position.
-        self.rect = self.image.get_rect(
-            center=(round(self.position.x), round(self.position.y))
-)
-        # Clamp the car's position within the specified bounds
-        self.keep_inside(bounds)
-
-
-        # Clear the requested direction for the next frame.
-        self.acceleration_direction.update(0, 0)
+        self._update_velocity(dt)
+        self._update_position(dt)
+        self._update_image(bounds)
 
     def keep_inside(self, bounds):
         """Keep the car inside the bounds and stop it upon impact."""
@@ -118,3 +91,53 @@ class Car(pygame.sprite.Sprite):
 
         if hit_boundary:
             self.velocity.update(0, 0)
+        
+    def _update_position(self, dt):
+        """
+        Update the car's position based on its velocity and acceleration direction.
+        Args:
+            dt (float): The time delta since the last frame.
+        """
+        if self.acceleration_direction.length_squared() > 0:
+            direction = self.acceleration_direction.normalize()
+
+            # Apply acceleration in the direction of movement
+            self.velocity += direction * self.ACCELERATION * dt
+        else:
+            self.velocity *= self.DRAG ** (dt * 60) 
+
+    def _update_velocity(self, dt):
+        """
+        Update the car's velocity based on its acceleration direction.
+        Args:
+            dt (float): The time delta since the last frame.
+        """
+        if self.velocity.length() < self.STOP_SPEED:
+            self.velocity.update(0, 0)
+        
+        # Limit the car's speed to the maximum speed in both directions
+        if self.velocity.length() > self.MAX_SPEED:
+                self.velocity.scale_to_length(self.MAX_SPEED)
+
+        # Velocity is measured in pixels per second.
+        # Multiplying it by dt gives the distance traveled this frame.
+        self.position += self.velocity * dt
+
+    def _update_image(self, bounds):
+        """
+        Update the car's image and rectangle based on its current angle and position.
+        Args:
+            bounds (pygame.Rect): The rectangular area within which the car should stay.
+        """
+        self.image = pygame.transform.rotate(self.original_image, -self.angle)
+
+        # Keep the rotated image centered on the car's position.
+        self.rect = self.image.get_rect(
+            center=(round(self.position.x), round(self.position.y))
+    )
+        # Clamp the car's position within the specified bounds
+        self.keep_inside(bounds)
+
+
+        # Clear the requested direction for the next frame.
+        self.acceleration_direction.update(0, 0)

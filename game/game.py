@@ -52,10 +52,8 @@ while running:
 
     # Process player inputs.
     keys = pygame.key.get_pressed()
-    player1.player_movement(keys)
-    player1.player_steering(keys, dt)
+    player1.handle_player_input(keys, dt)
     cars.update(screen_bounds, dt)  # Update the car's position after moving
-
 
     # update frame
     screen.fill(screen_bg)
