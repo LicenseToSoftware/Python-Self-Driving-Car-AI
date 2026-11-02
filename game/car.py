@@ -13,6 +13,7 @@ class Car(pygame.sprite.Sprite):
         angle: The car's heading in degrees; 0 faces right.
         """
     MAX_SPEED = 180
+    MIN_STEERING_SPEED = 25
     ACCELERATION = 108
     DRAG = 0.95
     STOP_SPEED = 1
@@ -54,14 +55,26 @@ class Car(pygame.sprite.Sprite):
         """
         Set the direction in which the car should accelerate.
         Args:
-            dx (float): The x-component of the acceleration direction.
-            dy (float): The y-component of the acceleration direction.
             forward (int): The forward/backward input from the player.
         """
         angle = math.radians(self.angle) # Must use local variable to avoid modifying the class attribute directly
         dx = math.cos(angle) * forward
         dy = math.sin(angle) * forward
         self.acceleration_direction.update(dx, dy)
+
+    def steer(self, direction, dt):
+        """
+        Adjust the car's angle based on player input.
+        Args:
+            direction (int): The direction to steer; -1 for left, 1 for right.
+            dt (float): The time delta since the last frame.
+        """
+        speed = self.velocity.length()
+
+        if speed < self.MIN_STEERING_SPEED:
+            return  # Don't steer if the car is nearly stopped
+        
+        self.angle += direction * self.TURN_SPEED * dt
         
     def update(self, bounds, dt):
         """
@@ -98,30 +111,32 @@ class Car(pygame.sprite.Sprite):
         Args:
             dt (float): The time delta since the last frame.
         """
-        if self.acceleration_direction.length_squared() > 0:
-            direction = self.acceleration_direction.normalize()
+        # Update the car's position based on its velocity and the time delta.
+        self.position += self.velocity * dt
 
-            # Apply acceleration in the direction of movement
-            self.velocity += direction * self.ACCELERATION * dt
-        else:
-            self.velocity *= self.DRAG ** (dt * 60) 
 
     def _update_velocity(self, dt):
         """
-        Update the car's velocity based on its acceleration direction.
+        Update the car's velocity based on its acceleration direction and drag.
         Args:
             dt (float): The time delta since the last frame.
         """
+
+        # If the car is accelerating, apply acceleration in the direction of movement.
+        if self.acceleration_direction.length_squared() > 0:
+            direction = self.acceleration_direction.normalize()
+            self.velocity += direction * self.ACCELERATION * dt
+        else:
+            # Apply drag to slow the car down when not accelerating.
+            self.velocity *= self.DRAG ** (dt * 60) 
+
+        # If the car's speed is below the stop threshold, set it to zero.
         if self.velocity.length() < self.STOP_SPEED:
             self.velocity.update(0, 0)
         
-        # Limit the car's speed to the maximum speed in both directions
+        # Clamp the car's speed to the maximum allowed speed.
         if self.velocity.length() > self.MAX_SPEED:
                 self.velocity.scale_to_length(self.MAX_SPEED)
-
-        # Velocity is measured in pixels per second.
-        # Multiplying it by dt gives the distance traveled this frame.
-        self.position += self.velocity * dt
 
     def _update_image(self, bounds):
         """

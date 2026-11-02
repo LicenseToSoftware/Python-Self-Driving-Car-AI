@@ -26,10 +26,14 @@ class Player_Controls:
         """
         Adjust the car's angle based on player input.
         """
+
+        direction = 0
         if keys[pygame.K_a]:
-            self.car.angle -= self.car.TURN_SPEED * dt
+            direction -= 1
         if keys[pygame.K_d]:
-            self.car.angle += self.car.TURN_SPEED * dt
+            direction += 1
+            
+        self.car.steer(direction, dt)
 
     def handle_player_input(self, keys, dt):
         """

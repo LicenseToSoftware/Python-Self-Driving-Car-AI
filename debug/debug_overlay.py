@@ -94,6 +94,11 @@ def draw_debug_overlay(screen, car, font):
     screen.blit(rear_label, rear + pygame.Vector2(10, 10))
 
     # Show the car's angle and forward vector.
+    pixel_text = font.render(
+        f"Position: ({car.velocity.x:.1f}, {car.velocity.y:.1f})",
+        True,
+        "white",
+    )
     angle_text = font.render(
         f"Angle: {car.angle:.1f} degrees",
         True,
@@ -106,6 +111,7 @@ def draw_debug_overlay(screen, car, font):
         "white",
     )
 
+    screen.blit(pixel_text, (10, height - 80))
     screen.blit(angle_text, (10, height - 55))
     screen.blit(forward_text, (10, height - 30))
 
