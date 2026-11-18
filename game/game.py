@@ -3,7 +3,7 @@ import pygame
 from game.car import Car
 from input.human_controller import Player_Controls as player_controls
 from input.debug_controls import debug_controls
-from debug.debug_overlay import draw_debug_overlay as debug_overlay
+from debug.debug_overlay import DebugOverlay
 
 
 # Main Game loop and state managment
@@ -29,6 +29,7 @@ running = True
 # Create Game Objects
 car_image_path = "assets/cars/RedStrip.png"  # Path to the car image
 car = Car(car_image_path, 600, 360)
+debug_overlay = DebugOverlay(screen, car, debug_font)
 
 #Add the car to the sprite group
 cars = pygame.sprite.Group()
@@ -60,7 +61,7 @@ while running:
     cars.draw(screen)
 
     if debug_overlay_enabled:
-        debug_overlay(screen, car, debug_font)
+        debug_overlay.draw()
 
 
     # Display The frame
